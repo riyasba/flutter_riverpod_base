@@ -26,10 +26,9 @@ class API{
 
   API({ required String? authToken}) : _authToken = authToken;
 
-  FutureEither<Response> getRequest({required String url, bool requireAuth = true}) async {
+  FutureEither<Response> getRequest({required String url, bool requireAuth = false}) async {
     final Map<String, String> requestHeaders = {
       "Content-Type":"application/json",
-      "Authorization": "token=$_authToken"
     };
     if(requireAuth){
       if((_authToken ?? '').isEmpty) {
@@ -42,7 +41,8 @@ class API{
     }
     try{
       final response = await get(Uri.parse(url), headers: requestHeaders);
-      log('RESPONSE : ${response.body}', name: LogLabel.httpGet);
+
+      print('RESPONSE : ${response.body}');
       return Right(response);
     }catch(e, stktrc){
       return Left(Failure(message: FailureMessage.getRequestMessage, stackTrace:stktrc));

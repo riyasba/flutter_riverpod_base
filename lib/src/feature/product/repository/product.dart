@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_base/src/core/core.dart';
+import 'package:flutter_riverpod_base/src/models/git_repo_model.dart';
 import 'package:flutter_riverpod_base/src/models/product.dart';
 import 'package:flutter_riverpod_base/src/res/endpoints.dart';
 import 'package:flutter_riverpod_base/src/res/strings.dart';
@@ -17,25 +18,24 @@ class ProductRepo {
   final API _api;
   ProductRepo({required API api}) : _api = api;
 
-  FutureEither<List<Product>> getProducts() async {
+  FutureEither<List<Item>> getProducts() async {
     final result = await _api.getRequest(url: Endpoints.getProducts, requireAuth: false);
+
     return result.fold(
       (Failure failure) {
+        print("----------------->>");
+        print(failure.message);
         log(failure.message, name: LogLabel.product);
         return Left(failure);
       },
       (Response response) {
+        print("-<<-------------->>");
         try{
           final data = jsonDecode(response.body);
-          final productJson = data['products'];
-          log(productJson.toString(), name: LogLabel.product);
-          final List<Product> products = [];
-          for(dynamic product in productJson){
-            log(product.toString(), name: LogLabel.product);
-            products.add(Product.fromMap(product));
-          }
-          return Right(products);
+          GetGitRepoModel getGitRepoModel =GetGitRepoModel.fromJson(data);
+          return Right(getGitRepoModel.items);
         }catch (e, stktrc) {
+          print(e);
           log(FailureMessage.jsonParsingFailed, name: LogLabel.product);
           return Left(Failure(message: FailureMessage.jsonParsingFailed, stackTrace: stktrc,));
         }

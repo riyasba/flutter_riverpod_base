@@ -14,5 +14,5 @@ class Endpoints{
 
   static const getUser = "$_base/user";
 
-  static const getProducts = "$_base/products";
+  static const getProducts = "https://api.github.com/search/repositories?q=created:>2022-04-29&sort=stars&order=desc";
 }
